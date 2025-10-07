@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  // 🔹 Un sol constructor de tema per a clar i fosc
+  // 🔹 Un sol constructor de tema per a clar i fosc (mateixa tipografia als dos)
   ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final baseText = GoogleFonts.poppinsTextTheme();
@@ -34,20 +34,26 @@ class _MyAppState extends State<MyApp> {
         brightness: brightness,
       ),
       scaffoldBackgroundColor: isDark ? Colors.grey[900] : Colors.grey[100],
-      textTheme: isDark
-          ? baseText.apply(
-              bodyColor: Colors.white70,
-              displayColor: Colors.white70,
-            )
-          : baseText.copyWith(
-              bodyMedium: const TextStyle(fontSize: 18, color: Colors.black87),
-            ),
+
+      // ✅ Mateixa font en ambdós modes; només canviem colors
+      textTheme: baseText.copyWith(
+        bodyMedium: TextStyle(
+          fontSize: 18,
+          color: isDark ? Colors.white70 : Colors.black87,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      ),
+
       appBarTheme: AppBarTheme(
         backgroundColor: isDark ? Colors.indigo.shade400 : Colors.indigo,
         foregroundColor: Colors.white,
         centerTitle: true,
         elevation: 3,
-        toolbarHeight: 140, // 👈 alçada única controlada des d’aquí
+        toolbarHeight: 140, // control d’alçada únic
         titleTextStyle: GoogleFonts.bebasNeue(
           textStyle: const TextStyle(
             fontSize: 42,
@@ -105,6 +111,7 @@ class _HomeScreen extends StatelessWidget {
           preferredSize: Size.fromHeight(8),
           child: SizedBox(height: 8),
         ),
+        // placeholder per centrar el títol perfectament
         leadingWidth: 48,
         leading: const SizedBox(width: 48),
         title: const Text('Generador de noms'),
@@ -126,12 +133,10 @@ class _HomeScreen extends StatelessWidget {
                 IconButton(
                   tooltip: 'Veure favorits',
                   onPressed: () async {
-                    // 👉 obrim Favorits
                     await Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const FavoritesPage()),
                     );
-                    // 👉 en tornar, refresquem els favorits a PeopleList
                     await _peopleListKey.currentState
                         ?.refreshFavoritesFromDisk();
                   },

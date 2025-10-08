@@ -6,7 +6,6 @@ Aplicació desenvolupada amb **Flutter** que genera noms catalans de forma aleat
 El projecte inclou **mode clar/fosc**, persistència local amb **SharedPreferences**, i una **animació Lottie** que apareix quan la llista de favorits està buida.  
 Tot amb un enfocament **DRY (Don’t Repeat Yourself)** i un disseny coherent entre pantalles.
 
-> > > > > > > 667c81e (Update README.md)
 
 ## Getting Started
 
@@ -21,16 +20,6 @@ This project is a starting point for a Flutter application.
 ✅ **Animació Lottie** quan la llista de favorits està buida (`motion.json`)  
 ✅ Eliminació individual de favorits des de la pàgina dedicada  
 ✅ Disseny **responsive i net**, amb tipografies **Bebas Neue** i **Poppins** via Google Fonts
-
-> > > > > > > 667c81e (Update README.md)
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
 
 ---
 
@@ -64,4 +53,3 @@ Projecte creat per **Anna Borràs Font** com a part del curs
 
 ✨ _“El millor codi és el que és simple, elegant i fàcil d’entendre.”_
 
-> > > > > > > 667c81e (Update README.md)

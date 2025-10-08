@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  // 🔹 Un sol constructor de tema per a clar i fosc (mateixa tipografia als dos)
+  // 🔹 Mateixa tipografia i estil base per als dos modes
   ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final baseText = GoogleFonts.poppinsTextTheme();
@@ -35,7 +35,6 @@ class _MyAppState extends State<MyApp> {
       ),
       scaffoldBackgroundColor: isDark ? Colors.grey[900] : Colors.grey[100],
 
-      // ✅ Mateixa font en ambdós modes; només canviem colors
       textTheme: baseText.copyWith(
         bodyMedium: TextStyle(
           fontSize: 18,
@@ -53,7 +52,7 @@ class _MyAppState extends State<MyApp> {
         foregroundColor: Colors.white,
         centerTitle: true,
         elevation: 3,
-        toolbarHeight: 140, // control d’alçada únic
+        toolbarHeight: 140,
         titleTextStyle: GoogleFonts.bebasNeue(
           textStyle: const TextStyle(
             fontSize: 42,
@@ -62,6 +61,7 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ),
+
       cardTheme: const CardThemeData(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -92,7 +92,6 @@ class _HomeScreen extends StatelessWidget {
   final bool isDark;
   final VoidCallback onToggleTheme;
 
-  // 👉 clau per accedir a l’estat de PeopleList
   _HomeScreen({required this.isDark, required this.onToggleTheme})
     : _peopleListKey = GlobalKey<PeopleListState>();
 
@@ -100,8 +99,12 @@ class _HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appBarHeight =
-        Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight;
+    final size = MediaQuery.of(context).size;
+    final isPhone = size.width < 600;
+
+    // 🔹 AppBar més baix a mòbil i títol responsive
+    final appBarHeight = isPhone ? 96.0 : 140.0;
+    final titleSize = (size.width * 0.06).clamp(26.0, 40.0);
 
     return Scaffold(
       appBar: AppBar(
@@ -111,10 +114,14 @@ class _HomeScreen extends StatelessWidget {
           preferredSize: Size.fromHeight(8),
           child: SizedBox(height: 8),
         ),
-        // placeholder per centrar el títol perfectament
         leadingWidth: 48,
         leading: const SizedBox(width: 48),
-        title: const Text('Generador de noms'),
+        title: Text(
+          'Generador de noms',
+          style: Theme.of(
+            context,
+          ).appBarTheme.titleTextStyle?.copyWith(fontSize: titleSize),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -126,8 +133,13 @@ class _HomeScreen extends StatelessWidget {
                   onPressed: onToggleTheme,
                   icon: Icon(
                     isDark ? Icons.light_mode : Icons.dark_mode,
-                    size: 26,
+                    size: 24,
                   ),
+                  constraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
+                  padding: const EdgeInsets.all(6),
                 ),
                 const SizedBox(width: 6),
                 IconButton(
@@ -140,7 +152,12 @@ class _HomeScreen extends StatelessWidget {
                     await _peopleListKey.currentState
                         ?.refreshFavoritesFromDisk();
                   },
-                  icon: const Icon(Icons.favorite_border, size: 26),
+                  icon: const Icon(Icons.favorite_border, size: 24),
+                  constraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
+                  padding: const EdgeInsets.all(6),
                 ),
                 const SizedBox(width: 10),
               ],
@@ -148,7 +165,6 @@ class _HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      // 👇 passem la clau al widget
       body: PeopleList(key: _peopleListKey),
     );
   }

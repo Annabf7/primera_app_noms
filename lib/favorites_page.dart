@@ -18,6 +18,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
     _loadFavorites();
   }
 
+  // ──────────────────────── Carrega i desa favorits ────────────────────────
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -33,33 +34,33 @@ class _FavoritesPageState extends State<FavoritesPage> {
     await prefs.setStringList('favorites', _favorites);
   }
 
+  // ─────────────────────────────── UI PRINCIPAL ───────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: Theme.of(context).appBarTheme.toolbarHeight,
+        toolbarHeight: theme.appBarTheme.toolbarHeight,
         centerTitle: true,
-        title: Text(
-          'Favorits',
-          style: Theme.of(context).appBarTheme.titleTextStyle,
-        ),
+        title: Text('Favorits', style: theme.appBarTheme.titleTextStyle),
       ),
       body: _favorites.isEmpty
           ? Stack(
               fit: StackFit.expand,
               children: [
-                // 🌀 Fons animat ocupant tota la pantalla
+                // 🌀 Animació Lottie ocupant tota la pantalla
                 Lottie.asset(
                   'assets/animations/motion.json',
-                  fit: BoxFit.cover, // omple tota la pantalla
+                  fit: BoxFit.cover,
                   alignment: Alignment.center,
                   repeat: true,
                 ),
 
-                // ✨ Capa semitransparent opcional per llegibilitat
-                Container(color: Colors.black.withValues(alpha: 0.2)),
+                // ✨ Capa semitransparent per donar contrast al text
+                Container(color: Colors.black.withValues(alpha: 0.25)),
 
-                // 📄 Contingut superposat (text + botó)
+                // 📄 Text + botó superposats
                 Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -67,11 +68,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       Text(
                         'Encara no hi ha noms desats com a favorits',
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        style: theme.textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
-                          shadows: [
-                            const Shadow(
+                          shadows: const [
+                            Shadow(
                               blurRadius: 8,
                               color: Colors.black54,
                               offset: Offset(2, 2),
@@ -83,12 +84,12 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       TextButton.icon(
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.white,
+                          backgroundColor: Colors.indigoAccent.withValues(
+                            alpha: 0.8,
+                          ),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20,
                             vertical: 12,
-                          ),
-                          backgroundColor: Colors.indigoAccent.withValues(
-                            alpha: 0.8,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -122,11 +123,15 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 final name = _favorites[i];
                 return Card(
                   elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // 🔹 Nom favorit
                         Expanded(
                           child: Text(
                             name,
@@ -138,6 +143,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                             ),
                           ),
                         ),
+
+                        // 🔹 Botó eliminar
                         IconButton(
                           icon: const Icon(
                             Icons.close,

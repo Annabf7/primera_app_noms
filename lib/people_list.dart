@@ -10,19 +10,17 @@ class PeopleList extends StatefulWidget {
   State<PeopleList> createState() => PeopleListState();
 }
 
-// 🔹 Enum per definir el tipus de filtre actiu (tots, dones o homes)
+// 🔹 Tipus de filtre
 enum GenderFilter { all, women, men }
 
 class PeopleListState extends State<PeopleList> {
   final _suggestions = <String>[];
   final _favorites = <String>{};
 
-  // ✅ Fem servir el paquet amb la zona catalana
+  // ✅ Noms catalans
   final _randomNames = RandomNames(Zone.catalonia);
 
-  // 🔹 Filtre actiu (per defecte, tots)
   GenderFilter _filter = GenderFilter.all;
-
   late SharedPreferences _prefs;
 
   @override
@@ -31,13 +29,13 @@ class PeopleListState extends State<PeopleList> {
     _initPrefs();
   }
 
-  // 🔹 Inicialitza SharedPreferences i carrega els favorits guardats
+  // ─────────────────────────── Persistència ───────────────────────────
   Future<void> _initPrefs() async {
     _prefs = await SharedPreferences.getInstance();
     final storedFavs = _prefs.getStringList('favorites') ?? [];
     _favorites.addAll(storedFavs);
 
-    // Precarrega 20 noms inicials
+    // Precarrega 20 noms
     for (var j = 0; j < 20; j++) {
       _suggestions.add(_generateName());
     }
@@ -45,15 +43,12 @@ class PeopleListState extends State<PeopleList> {
     if (mounted) setState(() {});
   }
 
-  // 🔹 Desa l’estat actual de favorits al disc
   Future<void> _saveFavorites() async {
     await _prefs.setStringList('favorites', _favorites.toList());
   }
 
-  // 🔄 Recarrega els favorits des del disc (per sincronitzar amb canvis externs)
   Future<void> _reloadFavoritesFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final latest = prefs.getStringList('favorites') ?? [];
+    final latest = _prefs.getStringList('favorites') ?? [];
     setState(() {
       _favorites
         ..clear()
@@ -61,12 +56,10 @@ class PeopleListState extends State<PeopleList> {
     });
   }
 
-  // 🔁 Mètode públic per refrescar favorits des d’altres pantalles (com FavoritesPage)
-  Future<void> refreshFavoritesFromDisk() async {
-    await _reloadFavoritesFromPrefs();
-  }
+  /// 👈 cridable des d’altres pantalles (la fem servir en tornar de FavoritesPage)
+  Future<void> refreshFavoritesFromDisk() => _reloadFavoritesFromPrefs();
 
-  // 🔹 Genera un nom segons el filtre seleccionat
+  // ───────────────────────── Generació de noms ────────────────────────
   String _generateName() {
     switch (_filter) {
       case GenderFilter.women:
@@ -78,23 +71,22 @@ class PeopleListState extends State<PeopleList> {
     }
   }
 
-  // 🔹 Quan es canvia el filtre, es regenera la llista
   void _applyFilter(GenderFilter newFilter) {
     if (_filter == newFilter) return;
     setState(() {
       _filter = newFilter;
-      _suggestions.clear();
-      for (var j = 0; j < 20; j++) {
-        _suggestions.add(_generateName());
-      }
+      _suggestions
+        ..clear()
+        ..addAll(List.generate(20, (_) => _generateName()));
     });
   }
 
+  // ───────────────────────────── UI ───────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // ───────────────────── Barra de filtres ─────────────────────
+        // Barra de filtres
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
           child: ToggleButtons(
@@ -129,20 +121,19 @@ class PeopleListState extends State<PeopleList> {
           ),
         ),
 
-        // ───────────────────── Graella “infinita” ────────────────────
+        // Graella “infinita”
         Expanded(
           child: GridView.builder(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // 🔹 nombre de columnes
-              crossAxisSpacing: 12, // espai horitzontal entre columnes
-              mainAxisSpacing: 12, // espai vertical entre files
-              childAspectRatio: 6, // relació ample-altura
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 6,
             ),
             itemBuilder: (context, i) {
-              // Assegurem que hi hagi prou elements per a l’índex demanat
+              // Assegura elements suficients
               while (i >= _suggestions.length) {
-                // afegeix en blocs per eficiència
                 for (var j = 0; j < 20; j++) {
                   _suggestions.add(_generateName());
                 }
@@ -170,6 +161,7 @@ class PeopleListState extends State<PeopleList> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Nom
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -184,6 +176,8 @@ class PeopleListState extends State<PeopleList> {
                           ),
                         ),
                       ),
+
+                      // Cor de favorits
                       IconButton(
                         icon: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -192,10 +186,10 @@ class PeopleListState extends State<PeopleList> {
                               : Colors.grey.shade500,
                         ),
                         onPressed: () async {
-                          // 1) sincronitza amb el que hi ha desat al disc (evita “revivals”)
+                          // 1) sincronitza amb disc (evita “revivals”)
                           await _reloadFavoritesFromPrefs();
 
-                          // 2) aplica el canvi sobre l’estat ja sincronitzat
+                          // 2) aplica el canvi sobre l’estat sincronitzat
                           final isFavoriteNow = _favorites.contains(name);
                           setState(() {
                             if (isFavoriteNow) {
@@ -205,7 +199,7 @@ class PeopleListState extends State<PeopleList> {
                             }
                           });
 
-                          // 3) persisteix
+                          // 3) desa
                           await _saveFavorites();
                         },
                       ),
